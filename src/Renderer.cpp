@@ -20,19 +20,19 @@ Renderer::Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* c
     CreateCameraDescriptorSetLayout();
     CreateModelDescriptorSetLayout();
     CreateTimeDescriptorSetLayout();
-    CreateComputeDescriptorSetLayout();
+    CreateComputeDescriptorSetLayout(); // TODO
     CreateDescriptorPool();
     CreateCameraDescriptorSet();
     CreateModelDescriptorSets();
-    CreateGrassDescriptorSets();
+    CreateGrassDescriptorSets(); // TODO
     CreateTimeDescriptorSet();
-    CreateComputeDescriptorSets();
+    CreateComputeDescriptorSets(); // TODO
     CreateFrameResources();
     CreateGraphicsPipeline();
     CreateGrassPipeline();
-    CreateComputePipeline();
-    RecordCommandBuffers();
-    RecordComputeCommandBuffer();
+    CreateComputePipeline(); // TODO
+    RecordCommandBuffers(); // TODO
+    RecordComputeCommandBuffer(); // TODO
 }
 
 void Renderer::CreateCommandPools() {
@@ -101,7 +101,7 @@ void Renderer::CreateRenderPass() {
     // Specify subpass dependency
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
+    dependency.dstSubpass = 0;  
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.srcAccessMask = 0;
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -195,9 +195,41 @@ void Renderer::CreateTimeDescriptorSetLayout() {
 }
 
 void Renderer::CreateComputeDescriptorSetLayout() {
-    // TODO: Create the descriptor set layout for the compute pipeline
+    // DONE: Create the descriptor set layout for the compute pipeline
     // Remember this is like a class definition stating why types of information
     // will be stored at each binding
+
+    VkDescriptorSetLayoutBinding inputBladesBinding = {}; 
+    inputBladesBinding.binding = 0; 
+    inputBladesBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    inputBladesBinding.descriptorCount = 1; 
+    inputBladesBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    inputBladesBinding.pImmutableSamplers = nullptr; 
+
+    VkDescriptorSetLayoutBinding outputBladesBinding = {};
+    inputBladesBinding.binding = 1;
+    inputBladesBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    inputBladesBinding.descriptorCount = 1;
+    inputBladesBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    inputBladesBinding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutBinding numBladesBinding = {};
+    inputBladesBinding.binding = 2;
+    inputBladesBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    inputBladesBinding.descriptorCount = 1;
+    inputBladesBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    inputBladesBinding.pImmutableSamplers = nullptr;
+   
+    std::vector<VkDescriptorSetLayoutBinding> bindings = { inputBladesBinding, outputBladesBinding, numBladesBinding }; 
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {}; 
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size()); 
+    layoutInfo.pBindings = bindings.data(); 
+
+    if (vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &computeDescriptorSetLayout) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create compute descriptor set layout");
+    }
 }
 
 void Renderer::CreateDescriptorPool() {
@@ -329,7 +361,7 @@ void Renderer::CreateTimeDescriptorSet() {
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = 1;
-    allocInfo.pSetLayouts = layouts;
+        allocInfo.pSetLayouts = layouts;
 
     // Allocate descriptor sets
     if (vkAllocateDescriptorSets(logicalDevice, &allocInfo, &timeDescriptorSet) != VK_SUCCESS) {

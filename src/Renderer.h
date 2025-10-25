@@ -9,7 +9,7 @@ class Renderer {
 public:
     Renderer() = delete;
     Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* camera);
-    ~Renderer();
+    ~Renderer(); 
 
     void CreateCommandPools();
 
@@ -56,6 +56,7 @@ private:
     VkDescriptorSetLayout cameraDescriptorSetLayout;
     VkDescriptorSetLayout modelDescriptorSetLayout;
     VkDescriptorSetLayout timeDescriptorSetLayout;
+    VkDescriptorSetLayout computeDescriptorSetLayout;
     
     VkDescriptorPool descriptorPool;
 
