@@ -31,7 +31,7 @@ Renderer::Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* c
     CreateGraphicsPipeline();
     CreateGrassPipeline();
     CreateComputePipeline(); // DONE
-    RecordCommandBuffers(); // TODO
+    RecordCommandBuffers(); // DONE
     RecordComputeCommandBuffer(); // TODO
 }
 
@@ -1021,7 +1021,14 @@ void Renderer::RecordComputeCommandBuffer() {
     // Bind descriptor set for time uniforms
     vkCmdBindDescriptorSets(computeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 1, 1, &timeDescriptorSet, 0, nullptr);
 
-    // TODO: For each group of blades bind its descriptor set and dispatch
+    // DONE: For each group of blades bind its descriptor set and dispatch
+    for (uint32_t i = 0; i < scene->GetBlades().size(); ++i)
+    {
+        vkCmdBindDescriptorSets(computeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 2, 1, &computeDescriptorSets[i], 0, nullptr);
+
+        uint32_t groupCountX = (NUM_BLADES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE; 
+        vkCmdDispatch(computeCommandBuffer, groupCountX, 1, 1);
+    }
 
     // ~ End recording ~
     if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
