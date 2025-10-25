@@ -20,8 +20,8 @@ Renderer::Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* c
     CreateCameraDescriptorSetLayout();
     CreateModelDescriptorSetLayout();
     CreateTimeDescriptorSetLayout();
-    CreateComputeDescriptorSetLayout(); // TODO
-    CreateDescriptorPool();
+    CreateComputeDescriptorSetLayout(); // DONE
+    CreateDescriptorPool(); // DONE
     CreateCameraDescriptorSet();
     CreateModelDescriptorSets();
     CreateGrassDescriptorSets(); // TODO
@@ -393,6 +393,8 @@ void Renderer::CreateTimeDescriptorSet() {
 void Renderer::CreateComputeDescriptorSets() {
     // TODO: Create Descriptor sets for the compute pipeline
     // The descriptors should point to Storage buffers which will hold the grass blades, the culled grass blades, and the output number of grass blades 
+
+
 }
 
 void Renderer::CreateGraphicsPipeline() {
