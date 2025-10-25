@@ -24,7 +24,7 @@ Renderer::Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* c
     CreateDescriptorPool(); // DONE
     CreateCameraDescriptorSet();
     CreateModelDescriptorSets();
-    CreateGrassDescriptorSets(); // TODO
+    CreateGrassDescriptorSets(); // DONE
     CreateTimeDescriptorSet();
     CreateComputeDescriptorSets(); // TODO
     CreateFrameResources();
