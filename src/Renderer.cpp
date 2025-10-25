@@ -30,7 +30,7 @@ Renderer::Renderer(Device* device, SwapChain* swapChain, Scene* scene, Camera* c
     CreateFrameResources();
     CreateGraphicsPipeline();
     CreateGrassPipeline();
-    CreateComputePipeline(); // TODO
+    CreateComputePipeline(); // DONE
     RecordCommandBuffers(); // TODO
     RecordComputeCommandBuffer(); // TODO
 }
@@ -854,8 +854,8 @@ void Renderer::CreateComputePipeline() {
     computeShaderStageInfo.module = computeShaderModule;
     computeShaderStageInfo.pName = "main";
 
-    // TODO: Add the compute dsecriptor set layout you create to this list
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { cameraDescriptorSetLayout, timeDescriptorSetLayout };
+    // DONE: Add the compute dsecriptor set layout you create to this list
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts = { cameraDescriptorSetLayout, timeDescriptorSetLayout, computeDescriptorSetLayout };
 
     // Create pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
