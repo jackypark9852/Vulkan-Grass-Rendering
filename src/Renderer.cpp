@@ -207,18 +207,18 @@ void Renderer::CreateComputeDescriptorSetLayout() {
     inputBladesBinding.pImmutableSamplers = nullptr; 
 
     VkDescriptorSetLayoutBinding outputBladesBinding = {};
-    inputBladesBinding.binding = 1;
-    inputBladesBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    inputBladesBinding.descriptorCount = 1;
-    inputBladesBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-    inputBladesBinding.pImmutableSamplers = nullptr;
+    outputBladesBinding.binding = 1;
+    outputBladesBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    outputBladesBinding.descriptorCount = 1;
+    outputBladesBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    outputBladesBinding.pImmutableSamplers = nullptr;
 
     VkDescriptorSetLayoutBinding numBladesBinding = {};
-    inputBladesBinding.binding = 2;
-    inputBladesBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    inputBladesBinding.descriptorCount = 1;
-    inputBladesBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-    inputBladesBinding.pImmutableSamplers = nullptr;
+    numBladesBinding.binding = 2;
+    numBladesBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    numBladesBinding.descriptorCount = 1;
+    numBladesBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    numBladesBinding.pImmutableSamplers = nullptr;
    
     std::vector<VkDescriptorSetLayoutBinding> bindings = { inputBladesBinding, outputBladesBinding, numBladesBinding }; 
 
@@ -247,7 +247,8 @@ void Renderer::CreateDescriptorPool() {
         // Time (compute)
         { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER , 1 },
 
-        // TODO: Add any additional types and counts of descriptors you will need to allocate
+        // DONE: Add any additional types and counts of descriptors you will need to allocate
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, static_cast<uint32_t>(scene->GetBlades().size()) * 3} 
     };
 
     VkDescriptorPoolCreateInfo poolInfo = {};
