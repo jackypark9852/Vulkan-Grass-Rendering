@@ -20,7 +20,7 @@ layout(location = 2) out vec4 tese_up[];
 
 void main() {
 	// Don't move the origin location of the patch
-    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+    gl_out[gl_InvocationID].gl_Position = tesc_v0[gl_InvocationID]; 
 
 	// DONE: Write any shader outputs
     tese_v1[gl_InvocationID] = tesc_v1[gl_InvocationID];
