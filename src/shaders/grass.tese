@@ -34,10 +34,10 @@ void main() {
     vec3 a = v0 + v * (v1 - v0);
     vec3 b = v1 + v * (v2 - v1);
     vec3 c = a + v * (b - a);
+    vec3 t0 = normalize(b - a);
     vec3 t1 = vec3(cos(theta), 0, sin(theta));
     vec3 c0 = c - width * t1;
     vec3 c1 = c + width * t1;
-    vec3 t0 = normalize(b - a);
     vec3 nor = normalize(cross(t0, t1));
 
     // Interpolate between the two sides of the grass blade
