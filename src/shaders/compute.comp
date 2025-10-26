@@ -79,9 +79,9 @@ void main() {
     // Cull the blade if it is not facing the camera
     if(ENABLE_ORIENTATION_CULLING) {
         float theta = inputBlades[gl_GlobalInvocationID.x].v0.w;  
-        vec3 grassFront = vec3(cos(theta), 0, sin(theta)); // Assume up vector is alwyas (0, 1, 0)
+        vec3 grassLeft = vec3(cos(theta), 0, sin(theta)); // Assume up vector is alwyas (0, 1, 0)
         vec3 camFront = GetCameraFrontWorld(camera.view);
-        float dotProduct = dot(grassFront, camFront);
+        float dotProduct = dot(grassLeft, camFront);
         if (abs(dotProduct)> ORIENTATION_CULLING_THRESHOLD) {
             return; // Skip this blade
         }
