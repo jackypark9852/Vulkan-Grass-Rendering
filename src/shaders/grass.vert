@@ -22,14 +22,11 @@ out gl_PerVertex {
 
 void main() {
 	vec4 model_v0_H = model * vec4(vs_v0.xyz, 1.0);
-    tesc_v0 = vec4((model_v0_H / model_v0_H.w).xyz, vs_v0.w);
-
+    tesc_v0 = vec4(model_v0_H.xyz, vs_v0.w); 
     vec4 model_v1_H = model * vec4(vs_v1.xyz, 1.0);
-    tesc_v1 = vec4((model_v1_H / model_v1_H.w).xyz, vs_v1.w);
-
+    tesc_v1 = vec4(model_v1_H.xyz, vs_v1.w); 
     vec4 model_v2_H = model * vec4(vs_v2.xyz, 1.0);
-    tesc_v2 = vec4((model_v2_H / model_v2_H.w).xyz, vs_v2.w);
-
+    tesc_v2 = vec4(model_v2_H.xyz, vs_v2.w); 
     vec4 model_up_H = model * vec4(vs_up.xyz, 0.0);
-    tesc_up = vec4((model_up_H / model_up_H.w).xyz, vs_up.w);
+    tesc_up = vec4(model_up_H.xyz, vs_up.w); 
 }

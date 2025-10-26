@@ -4,6 +4,9 @@
 #define ENABLE_ORIENTATION_CULLING true
 #define ORIENTATION_CULLING_THRESHOLD 0.9 // This is the threshold for culling blades based on their orientation 
 
+#define ENABLE_FRUSTUM_CULLING true
+#define FRUSTUM_CULLING_TOLERANCE 0.1 
+
 #define WORKGROUP_SIZE 32
 layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
@@ -75,10 +78,10 @@ void main() {
 	// TODO: Cull blades that are too far away or not in the camera frustum and write them
 	// to the culled blades buffer
     
-
+    Blade blade = inputBlades[gl_GlobalInvocationID.x];
     // Cull the blade if it is not facing the camera
     if(ENABLE_ORIENTATION_CULLING) {
-        float theta = inputBlades[gl_GlobalInvocationID.x].v0.w;  
+        float theta = blade.v0.w;  
         vec3 grassLeft = vec3(cos(theta), 0, sin(theta)); // Assume up vector is alwyas (0, 1, 0)
         vec3 camFront = GetCameraFrontWorld(camera.view);
         float dotProduct = dot(grassLeft, camFront);
@@ -86,6 +89,22 @@ void main() {
             return; // Skip this blade
         }
     }
+
+    // Cull the blade if it is outside of the frustum
+    if(ENABLE_FRUSTUM_CULLING) {
+
+
+        vec4 bladePosClip = camera.proj * camera.view * blade.v0;
+        // Perform perspective divide
+        bladePosClip /= bladePosClip.w;
+        // Check if the blade is within the normalized device coordinates (NDC) bounds with tolerance
+        if (!inBounds(bladePosClip.x, 1.0 + FRUSTUM_CULLING_TOLERANCE) ||
+            !inBounds(bladePosClip.y, 1.0 + FRUSTUM_CULLING_TOLERANCE) ||
+            !inBounds(bladePosClip.z, 1.0 + FRUSTUM_CULLING_TOLERANCE)) {
+            return; // Skip this blade
+        }
+    }
+
 
 	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
 	// You want to write the visible blades to the buffer without write conflicts between threads
