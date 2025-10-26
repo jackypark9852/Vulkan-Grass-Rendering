@@ -41,7 +41,8 @@ void main() {
     vec3 nor = normalize(cross(t0, t1));
 
     // Interpolate between the two sides of the grass blade
-    float t = 0.5 + (u - 0.5) * ((1 - max(v - 0.05, 0)) / (1 - 0.05));
+    float tau = .00001; 
+    float t = 0.5 + (u - 0.5) * ((1 - max(v - tau, 0)) / (1 - tau));
     vec3 pos = (1.f - t) * c0 + t * c1;
 
     // Output final values
