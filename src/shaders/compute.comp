@@ -1,11 +1,16 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+// Configuration options for culling
 #define ENABLE_ORIENTATION_CULLING true
 #define ORIENTATION_CULLING_THRESHOLD 0.9 // This is the threshold for culling blades based on their orientation 
 
 #define ENABLE_FRUSTUM_CULLING true
-#define FRUSTUM_CULLING_TOLERANCE 0.1 
+#define FRUSTUM_EPS 0.1
+
+#define ENABLE_DISTANCE_CULLING true
+#define DISTANCE_MAX 50.0
+#define NUM_BUCKETS 15 
 
 #define WORKGROUP_SIZE 32
 layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
@@ -13,6 +18,7 @@ layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 layout(set = 0, binding = 0) uniform CameraBufferObject {
     mat4 view;
     mat4 proj;
+    vec4 pos; 
 } camera;
 
 layout(set = 1, binding = 0) uniform Time {
@@ -62,8 +68,21 @@ bool inBounds(float value, float bounds) {
 }
 
 vec3 GetCameraFrontWorld(mat4 viewMat) {
-    vec3 negF = viewMat[2].xyz;
-    return normalize(-negF);
+    return normalize(-viewMat[2].xyz);
+}
+
+bool inFrustumClip(vec4 clip, float eps) {
+    float w = clip.w;
+
+    if (clip.x < -w - eps) return false;
+    if (clip.x >  w + eps) return false;
+    if (clip.y < -w - eps) return false;
+    if (clip.y >  w + eps) return false;
+
+    if (clip.z < 0.0 - eps) return false;
+    if (clip.z >  w + eps) return false;
+
+    return true;
 }
 
 void main() {
@@ -79,6 +98,11 @@ void main() {
 	// to the culled blades buffer
     
     Blade blade = inputBlades[gl_GlobalInvocationID.x];
+    vec3 v0 = blade.v0.xyz; 
+    vec3 v1 = blade.v1.xyz;
+    vec3 v2 = blade.v2.xyz;
+    vec3 up = normalize(blade.up.xyz);
+    
     // Cull the blade if it is not facing the camera
     if(ENABLE_ORIENTATION_CULLING) {
         float theta = blade.v0.w;  
@@ -89,22 +113,37 @@ void main() {
             return; // Skip this blade
         }
     }
-
+    
+    mat4 viewProj = camera.proj * camera.view; 
     // Cull the blade if it is outside of the frustum
     if(ENABLE_FRUSTUM_CULLING) {
+        vec3 midPos = (0.25 * v0 +
+                       0.50 * v1 +
+                       0.25 * v2);
 
+        vec4 p0Clip  = viewProj * vec4(v0, 1.0);
+        vec4 p2Clip  = viewProj * vec4(v2, 1.0);
+        vec4 midClip = viewProj * vec4(midPos,       1.0);
 
-        vec4 bladePosClip = camera.proj * camera.view * blade.v0;
-        // Perform perspective divide
-        bladePosClip /= bladePosClip.w;
-        // Check if the blade is within the normalized device coordinates (NDC) bounds with tolerance
-        if (!inBounds(bladePosClip.x, 1.0 + FRUSTUM_CULLING_TOLERANCE) ||
-            !inBounds(bladePosClip.y, 1.0 + FRUSTUM_CULLING_TOLERANCE) ||
-            !inBounds(bladePosClip.z, 1.0 + FRUSTUM_CULLING_TOLERANCE)) {
-            return; // Skip this blade
+        bool visible = false;
+        if (inFrustumClip(p0Clip,  FRUSTUM_EPS)) visible = true;
+        if (inFrustumClip(p2Clip,  FRUSTUM_EPS)) visible = true;
+        if (inFrustumClip(midClip, FRUSTUM_EPS)) visible = true;
+
+        if (!visible) {
+            return;
         }
     }
 
+    if(ENABLE_DISTANCE_CULLING) {
+        vec3 cameraPos = camera.pos.xyz; 
+        float dProj = length(v0 - cameraPos - up * dot((v0 - cameraPos), up));
+        bool culled = mod(gl_GlobalInvocationID.x, NUM_BUCKETS) > floor(NUM_BUCKETS * (1 - dProj / DISTANCE_MAX)); 
+
+        if(culled) {
+            return; 
+        }
+    }
 
 	// Note: to do this, you will need to use an atomic operation to read and update numBlades.vertexCount
 	// You want to write the visible blades to the buffer without write conflicts between threads
