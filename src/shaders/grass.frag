@@ -17,7 +17,7 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
     // Basic lambertian shader 
-    vec3 baseColor = vec3(0.1, 0.8, 0.1);
-    vec3 finalColor = baseColor * max(abs(dot(normalize(fs_nor), normalize(DIR_LIGHT))), 0.7);
+    vec3 baseColor = vec3(0.580, 0.271, 0.757);
+    vec3 finalColor = baseColor * max(abs(dot(normalize(fs_nor), normalize(DIR_LIGHT))), 0.5);
     outColor = vec4(finalColor, 1.0);
 }

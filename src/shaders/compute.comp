@@ -4,10 +4,9 @@
 // Configuration options for forces
 #define ENABLE_GRAVITY_ENV true
 #define GRAVITY_ACCELERATION_ENV 9.81
-
 #define ENABLE_GRAVITY_FRONT true
-
 #define ENABLE_FORCE_RECOVERY true
+#define ENABLE_WIND true
 
 // Configuration options for culling
 #define ENABLE_ORIENTATION_CULLING true
@@ -89,6 +88,63 @@ bool inFrustumClip(vec4 clip, float eps) {
     return true;
 }
 
+const int NUM_WAVES = 3;
+
+float hash11(float p) {
+    return fract(sin(p * 27.1687) * 43758.5453123);
+}
+
+vec2 hash21(float p) {
+    return vec2(hash11(p), hash11(p + 19.17));
+}
+
+struct WaveParams {
+    vec2 dir;      // horizontal direction 
+    float amp;     // amplitude
+    float freq;    // spatial frequency
+    float phase;   // temporal frequency
+};
+
+WaveParams getWaveParams(int i) {
+    // Make repeatable parameters per-wave
+    vec2 h  = hash21(float(i));       // base random 2D
+    vec2 h2 = hash21(float(i) + 13.0);
+
+    float ang = h.x * 6.2831853; // 0..2pi
+    vec2 dir = normalize(vec2(cos(ang), sin(ang)));
+
+    WaveParams w;
+    w.dir   = dir;
+
+    w.amp   = .5;
+    w.freq  = .1;
+    w.phase = 1;
+    return w;
+}
+
+vec3 sampleWindField(vec3 worldPos, float t) {
+    vec2 p = worldPos.xz;
+
+    vec2 accum = vec2(0.0);
+    float totalWeight = 0.0;
+
+    for (int i = 0; i < NUM_WAVES; ++i) {
+        WaveParams w = getWaveParams(i);
+        float phaseVal = dot(w.dir, p) * w.freq + t * w.phase;
+        float influence = sin(phaseVal) * w.amp;
+        accum += w.dir * influence;
+
+        totalWeight += w.amp;
+    }
+
+    if (totalWeight > 0.0) {
+        accum /= totalWeight;
+    }
+
+    return vec3(accum.x, 0.0, accum.y);
+}
+
+
 void main() {
 	// Reset the number of blades to 0
 	if (gl_GlobalInvocationID.x == 0) {
@@ -107,7 +163,7 @@ void main() {
     vec3 bladeLeft = vec3(cos(theta), 0, sin(theta)); // Assume up vector is alwyas (0, 1, 0)
     vec3 bladeForward = cross(up, bladeLeft);
 
-    // TODO: Apply forces on every blade and update the vertices in the buffer
+    // DONE: Apply forces on every blade and update the vertices in the buffer
     // Environmental Gravity 
     vec3 gE = vec3(0.0); 
     if (ENABLE_GRAVITY_ENV) {
@@ -128,8 +184,18 @@ void main() {
         fR = (initialPosition - v2) * stiffness /* stiffness placeholder */;
     }
 
+    // Wind force
+    vec3 fW = vec3(0.0);
+    if (ENABLE_WIND) {
+        vec3 windDir = sampleWindField(v0, totalTime); // use v0.xz so nearby blades move similarly
+        float tipFactor = clamp(dot(v2 - v0, up) / height, 0.0, 1.0);
+        windDir = normalize(windDir + 0.0001); // avoid NaN if zero
+        float windStrength = 2; // tweak this number
+        fW = windDir * windStrength * tipFactor;
+    }
+
     // Apply forces
-    vec3 deltaPos = (gE + gF + fR) * deltaTime; 
+    vec3 deltaPos = (gE + gF + fR + fW) * deltaTime; 
     v2 = vec3(v2.x + deltaPos.x, max(0.0, v2.y + deltaPos.y), v2.z + deltaPos.z); // Prevent blade from going below ground level (y = 0)
     float lProj = length(v2 - v0 - up * dot((v2 - v0), up)); 
     float invHeight = 1.0 / height; 
