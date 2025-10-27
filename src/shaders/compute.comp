@@ -75,10 +75,6 @@ bool inBounds(float value, float bounds) {
     return (value >= -bounds) && (value <= bounds);
 }
 
-vec3 GetCameraFrontWorld(mat4 viewMat) {
-    return normalize(viewMat[2].xyz);
-}
-
 bool inFrustumClip(vec4 clip, float eps) {
     float w = clip.w;
 
@@ -129,11 +125,11 @@ void main() {
     vec3 fR = vec3(0.0); 
     if(ENABLE_FORCE_RECOVERY) {
         vec3 initialPosition = v0 + normalize(up) * height;
-        fR = (initialPosition - v2) * 10 /* stiffness placeholder */;
+        fR = (initialPosition - v2) * stiffness /* stiffness placeholder */;
     }
 
     // Apply forces
-    vec3 deltaPos = (gE + gF + fR) * 0.16; 
+    vec3 deltaPos = (gE + gF + fR) * deltaTime; 
     v2 = vec3(v2.x + deltaPos.x, max(0.0, v2.y + deltaPos.y), v2.z + deltaPos.z); // Prevent blade from going below ground level (y = 0)
     float lProj = length(v2 - v0 - up * dot((v2 - v0), up)); 
     float invHeight = 1.0 / height; 
@@ -157,7 +153,7 @@ void main() {
     if (ENABLE_ORIENTATION_CULLING) {
     // bladeLeft is the thin axis of the grass in world space
         vec4 bladeLeftView   = camera.view * vec4(bladeLeft, 0.0); // direction -> w = 0
-        vec4 bladeOriginView = camera.view * vec4(v0.xyz,   1.0);  // position  -> w = 1
+        vec4 bladeOriginView = camera.view * vec4(v0,   1.0);  // position  -> w = 1
 
         vec3 dirThin     = normalize(bladeLeftView.xyz);
         vec3 dirToBlade  = normalize(bladeOriginView.xyz);
