@@ -94,7 +94,7 @@ void main() {
 
     // TODO: Apply forces on every blade and update the vertices in the buffer
 
-	// TODO: Cull blades that are too far away or not in the camera frustum and write them
+	// DONE: Cull blades that are too far away or not in the camera frustum and write them
 	// to the culled blades buffer
     
     Blade blade = inputBlades[gl_GlobalInvocationID.x];
