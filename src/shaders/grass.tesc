@@ -28,7 +28,7 @@ void main() {
     tese_up[gl_InvocationID] = tesc_up[gl_InvocationID];
 
 	// DONE: Set level of tesselation
-    float level = 8;
+    float level = 15;
     gl_TessLevelInner[0] = level;
     gl_TessLevelInner[1] = level;
     gl_TessLevelOuter[0] = level;
