@@ -117,8 +117,8 @@ WaveParams getWaveParams(int i) {
     w.dir   = dir;
 
     w.amp   = .5;
-    w.freq  = .1;
-    w.phase = 1;
+    w.freq  = .9;
+    w.phase = 10;
     return w;
 }
 
@@ -190,7 +190,7 @@ void main() {
         vec3 windDir = sampleWindField(v0, totalTime); // use v0.xz so nearby blades move similarly
         float tipFactor = clamp(dot(v2 - v0, up) / height, 0.0, 1.0);
         windDir = normalize(windDir + 0.0001); // avoid NaN if zero
-        float windStrength = 2; // tweak this number
+        float windStrength = 3; // tweak this number
         fW = windDir * windStrength * tipFactor;
     }
 
