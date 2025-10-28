@@ -118,7 +118,7 @@ WaveParams getWaveParams(int i) {
 
     w.amp   = .5;
     w.freq  = .9;
-    w.phase = 10;
+    w.phase = 7;
     return w;
 }
 
