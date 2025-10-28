@@ -9,13 +9,13 @@
 #define ENABLE_WIND true
 
 // Configuration options for culling
-#define ENABLE_ORIENTATION_CULLING true
+#define ENABLE_ORIENTATION_CULLING false
 #define ORIENTATION_CULLING_THRESHOLD 0.98 // This is the threshold for culling blades based on their orientation 
 
-#define ENABLE_FRUSTUM_CULLING true
+#define ENABLE_FRUSTUM_CULLING false
 #define FRUSTUM_EPS 0.1
 
-#define ENABLE_DISTANCE_CULLING true
+#define ENABLE_DISTANCE_CULLING false
 #define DISTANCE_MAX 50.0
 #define NUM_BUCKETS 15 
 
