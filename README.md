@@ -26,17 +26,22 @@ Once those attributes are generated, most of the heavy lifting moves to the GPU:
 - A **compute shader** handles simulation (wind, gravity, recovery) and culls blades that shouldn’t be drawn.
 - A **tessellation shader** takes the curve description and expands it into actual renderable geometry in real time.
 - A **fragment shader** shades the final grass using simple Lambertian lighting.
-
+  
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#e8f4f8', 'primaryTextColor':'#000', 'primaryBorderColor':'#2c5f7c', 'lineColor':'#2c5f7c', 'secondaryColor':'#d4e8f0', 'tertiaryColor':'#fff', 'fontSize':'16px'}, 'flowchart': {'nodeSpacing': 80, 'rankSpacing': 100}}}%%
 flowchart LR
-    subgraph CPU Stage
-        A[Randomize per-blade attributes\n- height\n- width\n- orientation\n- stiffness]
-        B[Generate quadratic Bézier curve\n(v0, v1, v2)]
+    %% ---------- CPU STAGE ----------
+    subgraph CPU_Stage["CPU Stage"]
+        A["<div style='text-align: left; min-width: 250px; white-space: normal; word-wrap: break-word;'>Randomize per-blade <br/>attributes:<br/>• height<br/>• width<br/>• orientation<br/>• stiffness</div>"]
+        B["<div style='text-align: left; min-width: 250px; white-space: normal; word-wrap: break-word;'>Generate quadratic Bézier <br/>curve<br/>(control points v0, v1, v2)</div>"]
+        A --> B
     end
-
-    subgraph GPU Stage
-        C[Compute Shader\n- wind + gravity sim\n- bend / recovery\n- view frustum culling]
-        D[Tessellation Shader\n- expand curve into mesh\n- generate blade triangles]
-        E[Fragment Shader\n- Lambertian shading\n- final grass color]
+    %% ---------- GPU STAGE ----------
+    subgraph GPU_Stage["GPU Stage"]
+        C["<div style='text-align: left; min-width: 250px; white-space: normal; word-wrap: break-word;'>Compute Shader<br/>• wind / gravity sim<br/>• stiffness & recovery<br/>• culling &nbsp;&nbsp;&nbsp;</div>"]
+        D["<div style='text-align: left; min-width: 250px; white-space: normal; word-wrap: break-word;'>Tessellation Shader<br/>• curve → blade mesh<br/>• generate triangles&nbsp;&nbsp;&nbsp;</div>"]
+        E["<div style='text-align: left; min-width: 250px; white-space: normal; word-wrap: break-word;'>Fragment Shader<br/>• Lambertian shading<br/>• final color</div>"]
+        C --> D --> E
     end
-
-    A --> B --> C --> D --> E --> F[On-screen grass field\n(real-time Vulkan render)]
+    CPU_Stage --> GPU_Stage
+```
