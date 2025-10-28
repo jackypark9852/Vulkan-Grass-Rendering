@@ -109,4 +109,5 @@ Why does culling improve scaling instead of just shifting everything down by a c
   This effect compounds at high grass densities, which is where we’re otherwise most bandwidth-limited.
 
 At ~4.2M blades, this shows up clearly:  
-frame time drops from ~134 ms (no culling) to ~75 ms (culling on), which is roughly a **1.8× speedup**. With culling, it truly is “the more grass you render, the more frame time you save!” — *not Jensen Huang*
+frame time drops from ~134 ms (no culling) to ~75 ms (culling on), which is roughly a **1.8× speedup**. With culling, it truly is:
+> “the more grass you render, the more frame time you save!” — *not Jensen Huang*
